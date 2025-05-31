@@ -56,17 +56,19 @@ const createCampground = async (req, res) => {
 const updateCampground = async (req, res) => {
   try {
     const { id } = req.params;
-    const updated = await Campground.update(req.body, {
+
+    const [updatedCount] = await Campground.update(req.body, {
       where: { id },
-      returning: true,
     });
 
-    if (updated[0] === 0) {
-      return res.status(404).json({ error: "Not found" });
+    if (updatedCount === 0) {
+      return res.status(404).json({ error: "Campground not found" });
     }
 
-    res.status(200).json(updated[1][0]);
+    const updatedCampground = await Campground.findByPk(id);
+    res.status(200).json(updatedCampground);
   } catch (err) {
+    console.error("Failed to update campground:", err);
     res.status(500).json({ error: "Failed to update campground" });
   }
 };
